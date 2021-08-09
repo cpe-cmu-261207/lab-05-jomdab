@@ -1,55 +1,66 @@
 
-import { useState } from "react"
-import Task from "./Task"
+import { useState } from 'react'
+import React from 'react'
+import Task from './Task'
 
-type taskdata = {
-    id: number;
+type TaskData = {
     name: string;
+    id: Number;
 }
-const Todo = () => {
-    const [input, setin] = useState<string>('')
-    const [task, settask] = useState<taskdata[]>([])
+
+const TodoList = () => {
+    const [curtask, setcurtask] = useState<string>('')
+    const [tasks, setTasks] = useState<TaskData[]>([])
+    const [finish, setfinish] = useState<TaskData[]>([])
+    const onChangecallback = (ev: React.ChangeEvent<HTMLInputElement>) => {
+        setcurtask(ev.target.value)
+    }
     const onKeyDownCallback = (ev: React.KeyboardEvent<HTMLInputElement>) => {
-        if (ev.code === 'Enter') {
-                 addTask(input); 
+        console.log(ev.code)
+        if(ev.code === 'Enter'){
+            addTask(curtask)
+        }   
+    }
+    function inputCheck(str:String) {
+        return str!==''
+    }
+
+    const addTask = (taskname: string) => {
+        if(inputCheck(taskname) === false){
+            alert("Task cannot be empty")
         }
-    }
-
-
-    const onChangeCallback = (ev: React.ChangeEvent<HTMLInputElement>) => {
-        setin(ev.target.value)
-
-    }
-
-    const addTask = (taskName: string) => {
-        if (input==="") 
-        {alert("Task cannot be empty")}
         else{
-            {alert(task.length)}
-        const newid = (new Date()).getTime()
-        let a = [{ id: newid, name: taskName}, ...task]
-        settask(a)
+            const newid = (new Date()).getTime()
+            const newTasks = [{ id: newid, name: taskname },...tasks]
+            setTasks(newTasks)
         }
+        
     }
-
-    const cc = () => {
-        addTask(input);
+    const deleteTask = (id: Number) => {
+        const newTasks = tasks.filter(x => {return x.id!==id})
+        setTasks(newTasks)
     }
-
-    const deletetask = (idnum:number) => {
-        const newtask = task.filter(x => x.id!==idnum)
-        settask(newtask)
+    const finishTask = (id:Number) =>{
+        const thisTask = tasks.filter(x=>x.id === id)
+        const newfinish = [thisTask[0],...finish]
+        setfinish(newfinish)
+        const oldTask = tasks.filter(x=> x.id !== id)
+        const newTasks = [...oldTask]
+        setTasks(newTasks)
     }
     return (
-        <div className='mx-auto max-w-4xl' id="t">
-            {/* task input and add button */}
-            <div className='flex space-x-1'>
-                <input className='border border-gray-400 w-full text-2xl'
-                    onKeyDown={onKeyDownCallback} onChange={onChangeCallback}></input>
-                <button className='border border-gray-400 w-8 font-bold' onClick={cc}>+</button>
+        <div>
+            <div className='mx-auto max-w-4xl'>
+                <div className='flex space-x-1'>
+                    <input className='border border-gray-400 w-full text-2xl'
+                        onKeyDown={onKeyDownCallback} onChange={onChangecallback}></input>
+                    <button className='border border-gray-400 w-8 font-bold' onClick ={()=>addTask(curtask)}>+</button>
+                </div>
+                {tasks.map(x=> <Task id={x.id} name={x.name} deleteF={deleteTask} doneF = {finishTask} finish = {true}></Task>)}
+                {finish.map(x=><Task id={x.id} name={x.name} deleteF={deleteTask} doneF = {finishTask} finish = {false}></Task>)}
             </div>
-            {task.map(x => <Task id={x.id} name={x.name} deleteF={deletetask}></Task>)}
         </div>
-    )
+
+            )
 }
-export default Todo
+export default TodoList
